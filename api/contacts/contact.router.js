@@ -1,4 +1,5 @@
 const express = require("express");
+
 const ContactController = require("./contact.controller");
 
 const contactRouter = express.Router();
@@ -12,7 +13,5 @@ contactRouter.post("/", ContactController.validateCreateContact, ContactControll
 contactRouter.put("/:id", ContactController.validateUpdateContact, ContactController.updateContact);
 
 contactRouter.delete("/:id", ContactController.removeContact);
-
-// console.log("contactRouter", contactRouter);
 
 module.exports = contactRouter;

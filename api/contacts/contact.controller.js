@@ -1,5 +1,6 @@
-const contacts = require('../../db/contacts.json');
 const Joi = require('joi');
+
+const contacts = require('../../db/contacts.json');
 
 class ContactController {
 
@@ -22,7 +23,7 @@ class ContactController {
 
   _getById(req, res, next) {
     const contactIndex = this.findContactIndexById(res, req.params.id);
-    contactIndex 
+    contactIndex || contactIndex == 0
     ? res.status(200).json(contacts[contactIndex])
     : this.NotFoundError(res);
   }
@@ -103,19 +104,3 @@ class ContactController {
 }
 
 module.exports = new ContactController();
-
-
-
-
-
-
-
-// throw new NotFoundError("Contact not found");
-
-// class NotFoundError extends Error {
-//     constructor(message) {
-//       super(message);    
-//       this.status = 404;
-//       delete this.stack;
-//     }
-// }

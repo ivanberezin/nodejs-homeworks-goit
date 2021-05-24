@@ -1,10 +1,17 @@
-const contacts = require('../../db/contacts.json');
+// const contacts = require('../../db/contacts.json');
 const Joi = require('joi');
+const { Types: { ObjectId } } = require("mongoose");
+
+const contactModel = require('./contact.model');
 
 class ContactController {
 
-  get getById() {
-    return this._getById.bind(this);
+  get getContactsList() {
+    return this._getContactsList.bind(this);
+  }
+
+  get getContactById() {
+    return this._getContactById.bind(this);
   }
   get addContact() {
     return this._addContact.bind(this);
@@ -12,55 +19,83 @@ class ContactController {
   get updateContact() {
     return this._updateContact.bind(this);
   }
+  get updateStatusContact() {
+    return this._updateStatusContact.bind(this);
+  }
   get removeContact() {
     return this._removeContact.bind(this);
   }
     
-  listContacts(req, res, next) {
-    return res.status(200).json(contacts);
+  async _getContactsList(req, res, next) {
+    try {
+      const contacts = await contactModel.find();
+      return contacts
+        ? res.status(200).json(contacts)
+        : this.NotFoundError(res);
+    } catch (err) {
+      next(err)
+    }
   }
 
-  _getById(req, res, next) {
-    const contactIndex = this.findContactIndexById(res, req.params.id);
-    contactIndex 
-    ? res.status(200).json(contacts[contactIndex])
-    : this.NotFoundError(res);
+  async _getContactById(req, res, next) {
+    try {
+      const contactId = req.params.id;
+      const contact = await contactModel.findById(contactId);
+      return contact 
+        ? res.status(200).json(contact)
+        : this.NotFoundError(res);
+    } catch (err) {
+      next(err)
+    }
   }
     
-  _addContact(req, res, next) {
-    const newContact = {
-      id: contacts.length + 1,
-      ...req.body,
-    };
-    contacts.push(newContact);    
-    return res.status(201).send(newContact);
+  async _addContact(req, res, next) {
+    try {
+      const newContact = await contactModel.create(req.body);
+      return res.status(201).json(newContact);
+    } catch (err) {
+      next(err)
+    }
   }
 
   async _updateContact(req, res, next) {
     try {
-      const targetContactIndex = this.findContactIndexById(res, req.params.id);    
-      contacts[targetContactIndex] = {
-        ...contacts[targetContactIndex],
-        ...req.body
-      };    
-      return res.status(200).send(contacts[targetContactIndex]);
+      const contactId = req.params.id;
+      console.log('contactId: ', contactId);
+      const contactUpd = await contactModel.findContactByIdAndUpdate(contactId, req.body);
+      console.log('contactUpd: ', contactUpd);
+      return contactUpd 
+        ? res.status(200).json(contactUpd)
+        : this.NotFoundError(res);
     } catch (err) {
       next(err);
     }
   }
-    
+
+  async _updateStatusContact(req, res, next) {
+    try {
+      const contactId = req.params.id;
+      const contactUpdStatus = await contactModel.findContactByIdAndUpdate(contactId, req.body);
+      return contactUpdStatus 
+        ? res.status(200).json(contactUpdStatus)
+        : this.NotFoundError(res);
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async _removeContact(req, res, next) {
     try {
-      const targetContactIndex = this.findContactIndexById(res, req.params.id);
-      targetContactIndex
-      ? contacts.splice(targetContactIndex, 1)
-      : this.NotFoundError(res);
-      return res.status(200).send({"message": "contact deleted"});
+      const contactId = req.params.id;
+      const deletedContact = await contactModel.findByIdAndDelete(contactId);
+      return deletedContact 
+        ? res.status(200).json(deletedContact)
+        : this.NotFoundError(res);
     } catch (err) {
       next(err);
     }
   }
-    
+
   findContactIndexById(res, contactId) {
     const id = parseInt(contactId);
     const targetContactIndex = contacts.findIndex(contact => contact.id === id);
@@ -69,12 +104,21 @@ class ContactController {
     }
     return targetContactIndex;
   }
+
+  validateId (req, res, next) {
+    const { id } = req.params;
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).send();
+    }
+    next();
+  }
     
   validateCreateContact(req, res, next) {
     const createContactRules = Joi.object({
       name: Joi.string().required(),
       email: Joi.string().required(),
-      phone: Joi.string().required()
+      phone: Joi.string().required(),
+      favorite: Joi.boolean()
     });
     const result = createContactRules.validate(req.body);
     if (result.error) {
@@ -87,11 +131,23 @@ class ContactController {
     const updateContactRules = Joi.object({
       name: Joi.string(),
       email: Joi.string(),
-      phone: Joi.string()
+      phone: Joi.string(),
+      favorite: Joi.boolean()
     });    
     const result = updateContactRules.validate(req.body);
     if (result.error) {
       return res.status(400).json({"message": "missing field"});
+    }    
+    next();
+  }
+
+  validateUpdateStatusContact(req, res, next) {
+    const updateStatusRules = Joi.object({
+      favorite: Joi.boolean().required()
+    });    
+    const result = updateStatusRules.validate(req.body);
+    if (result.error) {
+      return res.status(400).json({"message": "missing field favorite"});
     }    
     next();
   }

@@ -130,7 +130,7 @@ class ContactController {
       email: Joi.string(),
       phone: Joi.string(),
       favorite: Joi.boolean()
-    });    
+    }).min(1);    
     const result = updateContactRules.validate(req.body);
     if (result.error) {
       return res.status(400).json({"message": "missing field"});

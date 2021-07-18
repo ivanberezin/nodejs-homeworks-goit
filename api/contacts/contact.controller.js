@@ -67,7 +67,7 @@ class ContactController {
       const {id} = req.params;
       const currentUser = await userModel.findById(id);
       if(currentUser && !req.query) {
-        const currentUserContacts = await contactModel.find({owner: currentUserId});
+        const currentUserContacts = await contactModel.find({owner: id});
         return currentUserContacts
           ? res.status(200).json(currentUserContacts)
           : new NotFoundError("Not found");

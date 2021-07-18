@@ -156,19 +156,3 @@ class ContactController {
 }
 
 module.exports = new ContactController();
-
-
-
-
-
-
-
-// throw new NotFoundError("Contact not found");
-
-// class NotFoundError extends Error {
-//     constructor(message) {
-//       super(message);    
-//       this.status = 404;
-//       delete this.stack;
-//     }
-// }

@@ -1,4 +1,3 @@
-// const contacts = require('../../db/contacts.json');
 const Joi = require('joi');
 const { Types: { ObjectId } } = require("mongoose");
 
@@ -61,9 +60,7 @@ class ContactController {
   async _updateContact(req, res, next) {
     try {
       const contactId = req.params.id;
-      console.log('contactId: ', contactId);
       const contactUpd = await contactModel.findContactByIdAndUpdate(contactId, req.body);
-      console.log('contactUpd: ', contactUpd);
       return contactUpd 
         ? res.status(200).json(contactUpd)
         : this.NotFoundError(res);

@@ -16,6 +16,4 @@ contactRouter.patch("/:id/favorite", contactController.validateId, contactContro
 
 contactRouter.delete("/:id", contactController.validateId, contactController.removeContact);
 
-// console.log("contactRouter", contactRouter);
-
 module.exports = contactRouter;

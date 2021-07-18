@@ -190,7 +190,7 @@ class ContactController {
       email: Joi.string(),
       phone: Joi.string(),
       favorite: Joi.boolean()
-    });    
+    }).min(1);    
     const result = updateContactRules.validate(req.body);
     if (result.error) {
       throw new ValidateError("missing field");

@@ -1,10 +1,10 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
 
 const contactRouter = require('./contacts/contact.router');
-require('dotenv').config();
 
-const PORT = process.env.PORT || 3000
+require('dotenv').config();
 
 module.exports = class ContactsServer {
 
@@ -12,10 +12,11 @@ module.exports = class ContactsServer {
     this.server = null;
   }
 
-  start() {
+  async start() {
     this.initServer();
     this.initMiddlewares();
     this.initRoutes();
+    await this.initDatabase();
     this.startListening();
   }
 
@@ -32,9 +33,19 @@ module.exports = class ContactsServer {
     this.server.use("/api/contacts", contactRouter);
   }
 
+  async initDatabase() {
+    try {
+      await mongoose.connect(process.env.MONGODB_URL);
+      console.log("Database connection successful");
+    } catch (err) {
+      console.log("Database connection failed", err);
+      process.exit(1);
+    }
+  }
+
   startListening() {
-    this.server.listen(PORT, () => {
-      console.log("Server started listening on port", PORT);
+    this.server.listen(process.env.PORT, () => {
+      console.log("Server started listening on port", process.env.PORT);
     });
   }
 

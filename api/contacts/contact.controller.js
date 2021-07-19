@@ -3,6 +3,8 @@ const { Types: { ObjectId } } = require("mongoose");
 
 const contactModel = require('./contact.model');
 
+const contacts = require('../../db/contacts.json');
+
 class ContactController {
 
   get getContactsList() {

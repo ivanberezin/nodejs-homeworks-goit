@@ -1,8 +1,9 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
 
-const contactRouter = require('./contacts/contact.router');
+const contactRouter = require("./contacts/contact.router");
+const userRouter = require("./users/user.router")
 
 require('dotenv').config();
 
@@ -31,6 +32,7 @@ module.exports = class ContactsServer {
 
   initRoutes() {
     this.server.use("/api/contacts", contactRouter);
+    this.server.use("/api/users", userRouter);
   }
 
   async initDatabase() {

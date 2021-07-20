@@ -28,6 +28,7 @@ module.exports = class ContactsServer {
   initMiddlewares() {
     this.server.use(express.json());
     this.server.use(cors({ origin: "http://localhost:3000" }));
+    this.server.use(express.static("public"));
   }
 
   initRoutes() {

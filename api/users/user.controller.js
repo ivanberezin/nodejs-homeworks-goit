@@ -1,9 +1,10 @@
 const bcryptjs = require("bcryptjs");
 const Joi = require("joi");
 const jwt = require("jsonwebtoken");
+const gravatar = require("gravatar");
 
 const userModel = require("./user.model");
-const {UnauthorizedError, ValidateError} = require("../helpers/error.constructor");
+const { UnauthorizedError, ValidateError } = require("../helpers/error.constructor");
 
 const costFactor = 4;
 
@@ -15,11 +16,13 @@ async function signUp(req, res, next) {
         if (userInDatabase) {
             return res.status(409).json({"message": "Email in use"});
         }
-        const newUser = await userModel.create({email, password: passwordHash});
+        const avatarURL = gravatar.url(email);
+        const newUser = await userModel.create({email, password: passwordHash, avatarURL});
         return res.status(201).json({
             "user": {
                 email: newUser.email,
-                subscription: newUser.subscription
+                subscription: newUser.subscription,
+                avatarURL: newUser.avatarURL
             }});
     } catch (err) {
         next(err);
@@ -128,8 +131,8 @@ function validateUpdateSubs(req, res, next) {
 
 function prepareUsersResponse(users) {
     return users.map((user) => {
-        const {_id, subscription, email} = user;
-        return {id: _id, subscription, email};
+        const {_id, subscription, email, avatarURL} = user;
+        return {id: _id, subscription, email, avatarURL};
     })
 }
 
